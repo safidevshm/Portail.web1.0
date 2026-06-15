@@ -3,7 +3,7 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import PasswordInput from "@/components/PasswordInput";
 import { useAuth } from "@/context/AuthContext";
-import { trimFormData } from "@shared/utils";
+import { trimFormData, normalizePhoneNumber } from "@shared/utils";
 
 export default function Login() {
   const navigate = useNavigate();
