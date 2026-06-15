@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import PasswordInput from "@/components/PasswordInput";
 import { useAuth } from "@/context/AuthContext";
