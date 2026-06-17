@@ -2,16 +2,14 @@ import { RequestHandler } from "express";
 import { createClient } from "@supabase/supabase-js";
 import { trimFormData, normalizePhoneNumber, trimString } from "../../shared/utils";
 
-// Create Supabase client dynamically to ensure env vars are loaded
-function getSupabaseClient() {
-  const supabaseUrl = process.env.SUPABASE_URL || "";
-  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || "";
+import { supabase } from "../lib/supabase";
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase credentials. Please check SUPABASE_URL and SUPABASE_ANON_KEY environment variables.');
+// Helper function to validate Supabase connection
+function validateSupabaseConnection() {
+  if (!supabase) {
+    throw new Error('Supabase client not initialized. Check your environment variables.');
   }
-
-  return createClient(supabaseUrl, supabaseAnonKey);
+  return supabase;
 }
 
 /**
@@ -75,7 +73,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
     }
 
     // Insert into users table
-    const { data, error } = await getSupabaseClient()
+    const { data, error } = await supabase
       .from("users")
       .insert([
         {
@@ -146,7 +144,7 @@ export const handleLogin: RequestHandler = async (req, res) => {
     }
 
     // Query users table to find user with matching first_name, last_name and generated_id
-    const { data, error } = await getSupabaseClient()
+    const { data, error } = await supabase
       .from("users")
       .select("*")
       .eq("first_name", first_name)
@@ -195,7 +193,7 @@ export const handleGetProfile: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: "Generated ID is required" });
     }
 
-    const { data, error } = await getSupabaseClient()
+    const { data, error } = await supabase
       .from("users")
       .select("*")
       .eq("generated_id", generated_id)
@@ -237,7 +235,7 @@ export const handleSavePdfQrCode: RequestHandler = async (req, res) => {
     }
 
     // Update user with PDF and QR code URLs
-    const { data, error } = await getSupabaseClient()
+    const { data, error } = await supabase
       .from("users")
       .update({
         pdf_url,
