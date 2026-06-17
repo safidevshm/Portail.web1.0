@@ -62,6 +62,12 @@ export default {
           purple: "hsl(var(--scout-purple))",
           cream: "hsl(var(--scout-cream))",
         },
+        shm: {
+          red: "#8b0000",
+          purple: "#4b0082",
+          "red-light": "#ef4444",
+          "yellow-badge": "#fcd34d",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -85,10 +91,46 @@ export default {
             height: "0",
           },
         },
+        "slideDown": {
+          from: {
+            opacity: "0",
+            transform: "translateX(-50%) translateY(-20px)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateX(-50%) translateY(0)",
+          },
+        },
+        "cartPulse": {
+          "0%, 100%": {
+            opacity: "1",
+            transform: "scale(1)",
+          },
+          "50%": {
+            opacity: "0.8",
+            transform: "scale(1.1)",
+          },
+        },
+        "fade-in": {
+          from: {
+            opacity: "0",
+            transform: "translateY(10px)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "slide-down": "slideDown 0.3s ease-out",
+        "cart-pulse": "cartPulse 2s ease-in-out infinite",
+        "fade-in": "fade-in 0.6s ease-out forwards",
+      },
+      boxShadow: {
+        "shm-glow": "0 10px 30px rgba(139, 0, 0, 0.15)",
       },
     },
   },
