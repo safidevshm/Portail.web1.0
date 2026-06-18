@@ -179,6 +179,11 @@ html {
     @apply shm-glow bg-white rounded-lg overflow-hidden flex flex-col h-full;
   }
 
+  /* Form Card */
+  .form-card {
+    @apply bg-white rounded-lg shadow-md p-8;
+  }
+
   /* Container with proper padding */
   .container-shm {
     @apply container mx-auto px-4;
@@ -187,5 +192,43 @@ html {
   /* Smooth transition */
   .smooth-transition {
     @apply transition-all duration-300 ease-in-out;
+  }
+
+  /* Form Input Styles */
+  input[type="text"],
+  input[type="email"],
+  input[type="date"],
+  input[type="number"],
+  textarea,
+  select {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-shm-red/50 focus:border-shm-red transition-all;
+  }
+
+  /* Progress Bar Steps */
+  .progress-step {
+    @apply h-2 rounded-full transition-all duration-300;
+  }
+
+  .progress-step.active {
+    @apply bg-shm-red;
+  }
+
+  .progress-step.inactive {
+    @apply bg-gray-200;
+  }
+
+  /* Form Labels */
+  label {
+    @apply block text-sm font-semibold text-gray-700 mb-2;
+  }
+
+  /* Error Message */
+  .error-message {
+    @apply bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg animate-slide-down;
+  }
+
+  /* Success Message */
+  .success-message {
+    @apply bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg animate-slide-down;
   }
 }

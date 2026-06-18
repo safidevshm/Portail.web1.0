@@ -307,13 +307,13 @@ export default function Register() {
   const age = calculateAge(formData.birthDate);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-cream" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50" dir="rtl">
       <Header />
       <div className="py-8 px-4">
         <div className="max-w-2xl mx-auto">
           {/* Registration Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-scout-purple mb-2">
+            <h1 className="section-title text-shm-red">
               إنشاء حساب جديد
             </h1>
             <p className="text-gray-600 mb-4">
