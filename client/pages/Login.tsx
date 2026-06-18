@@ -1,10 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import PasswordInput from "@/components/PasswordInput";
 import { useAuth } from "@/context/AuthContext";
-import { trimFormData } from "@shared/utils";
+import { trimFormData, normalizePhoneNumber } from "@shared/utils";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -69,13 +68,13 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-scout-cream" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50" dir="rtl">
       <Header />
       <div className="flex items-center justify-center px-4 py-8 md:py-16 min-h-[calc(100vh-80px)]">
         <div className="w-full max-w-md">
           {/* Login Section */}
           <div className="text-center mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-scout-purple mb-2">
+            <h1 className="section-title text-shm-red">
               تسجيل الدخول
             </h1>
             <p className="text-gray-600">
@@ -84,9 +83,9 @@ export default function Login() {
           </div>
 
           {/* Login Form */}
-          <div className="bg-white rounded-lg shadow-md p-8">
+          <div className="product-card shadow-lg p-8">
             {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 animate-slide-down">
                 {error}
               </div>
             )}
@@ -148,7 +147,7 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-scout-purple hover:bg-purple-700 disabled:opacity-50 text-white font-bold py-3 rounded-lg transition-colors"
+                className="w-full btn-primary py-3 disabled:opacity-50 font-bold"
               >
                 {loading ? "جاري التحقق..." : "تسجيل الدخول"}
               </button>
@@ -161,7 +160,7 @@ export default function Login() {
               </p>
               <Link
                 to="/forgot-password"
-                className="block text-center text-scout-purple font-bold hover:text-purple-700 transition-colors mb-6"
+                className="block text-center text-shm-red font-bold hover:text-red-700 transition-colors mb-6"
               >
                 إعادة تعيين كلمة المرور
               </Link>
@@ -171,7 +170,7 @@ export default function Login() {
               </p>
               <Link
                 to="/register"
-                className="block text-center bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors"
+                className="block text-center btn-primary py-3 font-bold"
               >
                 إنشاء حساب
               </Link>

@@ -3,7 +3,7 @@
  * Removes leading and trailing whitespace from all string values in an object
  */
 export function trimFormData<T extends Record<string, any>>(data: T): T {
-  const trimmed = { ...data };
+  const trimmed = { ...data } as Record<string, any>;
 
   for (const key in trimmed) {
     if (typeof trimmed[key] === "string") {
@@ -11,7 +11,7 @@ export function trimFormData<T extends Record<string, any>>(data: T): T {
     }
   }
 
-  return trimmed;
+  return trimmed as T;
 }
 
 /**

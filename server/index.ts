@@ -7,6 +7,7 @@ import { handleRegister, handleLogin, handleGetProfile, handleSavePdfQrCode } fr
 import { handleSendIdeaNotification, handleGetIdeas } from "./routes/ideas";
 import { handleRegenerateDocuments, handleGetDocumentStatus } from "./routes/regenerate-documents";
 import { handleVerifyIdentity, handleResetPassword } from "./routes/password-recovery";
+import { handleSupabaseDiagnostics } from "./routes/diagnostics";
 
 export function createServer() {
   const app = express();
@@ -23,6 +24,9 @@ export function createServer() {
   });
 
   app.get("/api/demo", handleDemo);
+
+  // Diagnostic endpoint
+  app.get("/api/diagnostics/supabase", handleSupabaseDiagnostics);
 
   // Authentication routes
   app.post("/api/auth/register", handleRegister);

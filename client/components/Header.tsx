@@ -3,37 +3,49 @@ import { Link } from "react-router-dom";
 interface HeaderProps {
   hamburgerVisible?: boolean;
   onHamburgerClick?: () => void;
+  showLogo?: boolean;
+  title?: string;
+  subtitle?: string;
 }
 
-export default function Header({ hamburgerVisible = true, onHamburgerClick }: HeaderProps) {
+export default function Header({
+  hamburgerVisible = true,
+  onHamburgerClick,
+  showLogo = true,
+  title = "الكشافة الحسنية",
+  subtitle = "بوابة الأعضاء",
+}: HeaderProps) {
   return (
-    <header className="bg-gradient-to-l from-red-600 to-purple-600 text-white px-4 py-4 sticky top-0 z-40 shadow-lg" dir="rtl">
-      <div className="max-w-4xl mx-auto flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets%2F1f75f54747b54e29825eb23fdf70cfc1%2Fa8caeb8f3ae14cfe9ddb9534cad38297?format=webp&width=800&height=1200"
-            alt="شعار الكشافة الحسنية"
-            className="w-12 h-12 flex-shrink-0"
-          />
-          <div className="text-right">
-            <h1 className="text-lg md:text-xl font-bold text-white">
-              الكشافة الحسنية
-            </h1>
-            <p className="text-xs md:text-sm text-red-100">بوابة الأعضاء</p>
-          </div>
-        </Link>
+    <header className="shm-gradient sticky top-0 z-50 shadow-lg" dir="rtl">
+      <div className="container-shm py-4 flex items-center justify-between">
+        {/* Logo Section */}
+        {showLogo ? (
+          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-200">
+            <img
+              src="https://cdn.builder.io/api/v1/image/assets%2F1f75f54747b54e29825eb23fdf70cfc1%2Fa8caeb8f3ae14cfe9ddb9534cad38297?format=webp&width=800&height=1200"
+              alt="شعار الكشافة الحسنية"
+              className="w-12 h-12 flex-shrink-0"
+            />
+            <div className="text-right">
+              <h1 className="text-lg md:text-xl font-bold text-white">{title}</h1>
+              <p className="text-xs md:text-sm text-white/80">{subtitle}</p>
+            </div>
+          </Link>
+        ) : (
+          <div className="text-white text-2xl font-bold">SHM</div>
+        )}
 
-        {/* Navigation Links and Hamburger */}
-        <nav className="flex gap-4 items-center">
+        {/* Navigation and Actions */}
+        <nav className="flex gap-4 md:gap-8 items-center">
           <Link
             to="/"
-            className="text-white hover:text-red-100 font-semibold text-sm md:text-base transition-colors"
+            className="text-white hover:text-gray-200 font-medium text-sm md:text-base transition-colors duration-200"
           >
             الرئيسية
           </Link>
           <a
             href="#logout"
-            className="text-white hover:text-red-100 font-semibold text-sm md:text-base transition-colors"
+            className="text-white hover:text-gray-200 font-medium text-sm md:text-base transition-colors duration-200"
           >
             تسجيل الخروج
           </a>
@@ -42,7 +54,7 @@ export default function Header({ hamburgerVisible = true, onHamburgerClick }: He
           {hamburgerVisible && (
             <button
               onClick={onHamburgerClick}
-              className="hidden md:flex flex-col gap-1.5 text-white hover:text-red-100 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 p-2 rounded"
+              className="md:hidden flex flex-col gap-1.5 text-white hover:bg-white/10 transition-all p-2 rounded-lg"
               aria-label="فتح القائمة"
               aria-expanded="false"
             >

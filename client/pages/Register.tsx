@@ -224,13 +224,25 @@ export default function Register() {
     }
 
     try {
-      // Clean form data before sending
+      // Normalize phone numbers - convert all formats to standard 0XXXXXXXXX format
+      const normalizedUserPhone = normalizePhoneNumber(formData.userPhone);
+      const normalizedFatherPhone = formData.fatherPhone ? normalizePhoneNumber(formData.fatherPhone) : null;
+      const normalizedMotherPhone = formData.motherPhone ? normalizePhoneNumber(formData.motherPhone) : null;
+      const normalizedHomePhone = formData.homePhone ? normalizePhoneNumber(formData.homePhone) : null;
+
+      // Validate phone numbers
+      if (!normalizedUserPhone) {
+        alert("❌ رقم الهاتف الشخصي غير صحيح. الرجاء التحقق من الصيغة.");
+        return;
+      }
+
+      // Clean form data before sending - trim all text fields and use normalized phone numbers
       const cleanedFormData = {
         first_name: formData.firstName.trim(),
         last_name: formData.lastName.trim(),
         birth_date: formData.birthDate,
         gender: formData.gender.trim(),
-        user_phone: formData.userPhone.trim(),
+        user_phone: normalizedUserPhone,
         patrol_id: formData.patrol,
         role_id: formData.role,
         is_high_patrol: formData.isHighPatrol,
@@ -239,9 +251,9 @@ export default function Register() {
         guardian_relationship: formData.guardianRelationship.trim(),
         guardian_relationship_other: formData.guardianRelationshipOther.trim(),
         guardian_cin: formData.guardianCin.trim(),
-        father_phone: formData.fatherPhone.trim(),
-        mother_phone: formData.motherPhone.trim(),
-        home_phone: formData.homePhone.trim(),
+        father_phone: normalizedFatherPhone,
+        mother_phone: normalizedMotherPhone,
+        home_phone: normalizedHomePhone,
         additional_info: formData.additionalInfo.trim(),
         password: formData.password.trim(),
       };
@@ -295,13 +307,13 @@ export default function Register() {
   const age = calculateAge(formData.birthDate);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-cream" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50" dir="rtl">
       <Header />
       <div className="py-8 px-4">
         <div className="max-w-2xl mx-auto">
           {/* Registration Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-scout-purple mb-2">
+            <h1 className="section-title text-shm-red">
               إنشاء حساب جديد
             </h1>
             <p className="text-gray-600 mb-4">

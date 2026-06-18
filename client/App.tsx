@@ -35,6 +35,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               {/* Public routes */}
+              <Route path="/" element={<Login />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -42,7 +43,7 @@ const App = () => (
 
               {/* Protected routes - require authentication */}
               <Route
-                path="/"
+                path="/home"
                 element={
                   <ProtectedLayout>
                     <Index />

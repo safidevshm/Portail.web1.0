@@ -55,11 +55,19 @@ export default function ForgotPassword() {
     setError("");
 
     try {
+      // Normalize phone number to standard format
+      const normalizedPhone = normalizePhoneNumber(verifyData.userPhone);
+      if (!normalizedPhone) {
+        setError("رقم الهاتف غير صحيح. الرجاء التحقق من الصيغة.");
+        setLoading(false);
+        return;
+      }
+
       // Clean and normalize data before sending
       const cleanedData = {
         firstName: trimString(verifyData.firstName),
         lastName: trimString(verifyData.lastName),
-        userPhone: trimString(verifyData.userPhone),
+        userPhone: normalizedPhone,
         birthDate: verifyData.birthDate,
         memberId: trimString(verifyData.memberId),
       };
