@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import PasswordInput from "@/components/PasswordInput";
-import { trimFormData, normalizePhoneNumber, trimString } from "@shared/utils";
+import { trimFormData, normalizePhoneNumber, trimString, normalizeText } from "@shared/utils";
 
 interface RecoveryStep {
   step: "verify" | "choose-action" | "show-password" | "reset-password";
@@ -65,11 +65,11 @@ export default function ForgotPassword() {
 
       // Clean and normalize data before sending
       const cleanedData = {
-        firstName: trimString(verifyData.firstName),
-        lastName: trimString(verifyData.lastName),
+        firstName: normalizeText(verifyData.firstName),
+        lastName: normalizeText(verifyData.lastName),
         userPhone: normalizedPhone,
         birthDate: verifyData.birthDate,
-        memberId: trimString(verifyData.memberId),
+        memberId: normalizeText(verifyData.memberId),
       };
 
       const response = await fetch("/api/auth/verify-identity", {

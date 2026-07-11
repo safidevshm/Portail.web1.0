@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import PasswordStrengthIndicator from "@/components/PasswordStrengthIndicator";
 import PasswordInput from "@/components/PasswordInput";
 import { generateMemberId } from "../lib/memberIdGenerator";
-import { trimFormData, normalizePhoneNumber } from "@shared/utils";
+import { trimFormData, normalizePhoneNumber, normalizeText } from "@shared/utils";
 
 interface PatrolOption {
   id: string;
@@ -236,26 +236,26 @@ export default function Register() {
         return;
       }
 
-      // Clean form data before sending - trim all text fields and use normalized phone numbers
+      // Clean form data before sending - normalize all text fields (trim + reduce spaces) and use normalized phone numbers
       const cleanedFormData = {
-        first_name: formData.firstName.trim(),
-        last_name: formData.lastName.trim(),
+        first_name: normalizeText(formData.firstName),
+        last_name: normalizeText(formData.lastName),
         birth_date: formData.birthDate,
-        gender: formData.gender.trim(),
+        gender: normalizeText(formData.gender),
         user_phone: normalizedUserPhone,
         patrol_id: formData.patrol,
         role_id: formData.role,
         is_high_patrol: formData.isHighPatrol,
-        guardian_first_name: formData.guardianFirstName.trim(),
-        guardian_last_name: formData.guardianLastName.trim(),
-        guardian_relationship: formData.guardianRelationship.trim(),
-        guardian_relationship_other: formData.guardianRelationshipOther.trim(),
-        guardian_cin: formData.guardianCin.trim(),
+        guardian_first_name: normalizeText(formData.guardianFirstName),
+        guardian_last_name: normalizeText(formData.guardianLastName),
+        guardian_relationship: normalizeText(formData.guardianRelationship),
+        guardian_relationship_other: normalizeText(formData.guardianRelationshipOther),
+        guardian_cin: normalizeText(formData.guardianCin),
         father_phone: normalizedFatherPhone,
         mother_phone: normalizedMotherPhone,
         home_phone: normalizedHomePhone,
-        additional_info: formData.additionalInfo.trim(),
-        password: formData.password.trim(),
+        additional_info: normalizeText(formData.additionalInfo),
+        password: formData.password.trim(), // don't normalize password - preserve internal spaces
       };
 
       // Register user in database

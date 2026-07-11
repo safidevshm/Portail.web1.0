@@ -3,7 +3,7 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import PasswordInput from "@/components/PasswordInput";
 import { useAuth } from "@/context/AuthContext";
-import { trimFormData, normalizePhoneNumber } from "@shared/utils";
+import { trimFormData, normalizePhoneNumber, normalizeText } from "@shared/utils";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -38,8 +38,13 @@ export default function Login() {
     }
 
     try {
-      // Clean form data before sending
-      const cleanedData = trimFormData(formData);
+      // Clean form data before sending - normalize text fields
+      const cleanedData = {
+        first_name: normalizeText(formData.first_name),
+        last_name: normalizeText(formData.last_name),
+        generated_id: normalizeText(formData.generated_id),
+        password: formData.password, // don't normalize password
+      };
 
       const response = await fetch("/api/auth/login", {
         method: "POST",

@@ -76,3 +76,26 @@ export function isValidPhoneNumber(phone: string): boolean {
 export function trimString(value: string): string {
   return typeof value === "string" ? value.trim() : value;
 }
+
+/**
+ * Comprehensive text normalization
+ * - Trim whitespace (leading/trailing)
+ * - Reduce multiple internal spaces to single space
+ * - Remove non-breaking spaces and other control characters
+ */
+export function normalizeText(text: string): string {
+  if (typeof text !== "string") {
+    return text;
+  }
+
+  // Trim edges
+  let normalized = text.trim();
+
+  // Replace multiple consecutive spaces (including non-breaking spaces U+00A0) with single space
+  normalized = normalized.replace(/[\s\u00A0]+/g, " ");
+
+  // Remove any remaining control characters except space and common punctuation
+  normalized = normalized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
+
+  return normalized;
+}

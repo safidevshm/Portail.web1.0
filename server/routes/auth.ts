@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { createClient } from "@supabase/supabase-js";
-import { trimFormData, normalizePhoneNumber, trimString } from "../../shared/utils";
+import { trimFormData, normalizePhoneNumber, trimString, normalizeText } from "../../shared/utils";
 
 import { supabase } from "../lib/supabase";
 
@@ -40,17 +40,17 @@ export const handleRegister: RequestHandler = async (req, res) => {
       password,
     } = req.body;
 
-    // Trim text fields
-    first_name = trimString(first_name);
-    last_name = trimString(last_name);
-    gender = trimString(gender);
-    guardian_first_name = trimString(guardian_first_name);
-    guardian_last_name = trimString(guardian_last_name);
-    guardian_relationship = trimString(guardian_relationship);
-    guardian_relationship_other = trimString(guardian_relationship_other);
-    guardian_cin = trimString(guardian_cin);
-    additional_info = trimString(additional_info);
-    password = trimString(password);
+    // Normalize text fields (trim + reduce multiple spaces + remove control chars)
+    first_name = normalizeText(first_name);
+    last_name = normalizeText(last_name);
+    gender = normalizeText(gender);
+    guardian_first_name = normalizeText(guardian_first_name);
+    guardian_last_name = normalizeText(guardian_last_name);
+    guardian_relationship = normalizeText(guardian_relationship);
+    guardian_relationship_other = normalizeText(guardian_relationship_other);
+    guardian_cin = normalizeText(guardian_cin);
+    additional_info = normalizeText(additional_info);
+    password = trimString(password); // passwords: don't change internal spaces
 
     // Normalize phone numbers
     const normalizedUserPhone = normalizePhoneNumber(user_phone);
@@ -101,11 +101,18 @@ export const handleRegister: RequestHandler = async (req, res) => {
       .single();
 
     if (error) {
-      console.error("Supabase error:", error);
+      console.error("❌ Registration failed - Supabase error:", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
       return res
         .status(400)
         .json({ error: error.message || "Registration failed" });
     }
+
+    console.log(`✅ Registration successful - User: ${data.id}`);
 
     // Return user data
     res.json({
@@ -131,10 +138,10 @@ export const handleLogin: RequestHandler = async (req, res) => {
     // Clean input data
     let { first_name, last_name, generated_id, password } = req.body;
 
-    first_name = trimString(first_name);
-    last_name = trimString(last_name);
-    generated_id = trimString(generated_id);
-    password = trimString(password);
+    first_name = normalizeText(first_name);
+    last_name = normalizeText(last_name);
+    generated_id = normalizeText(generated_id);
+    password = trimString(password); // passwords: don't change internal spaces
 
     // Validate required fields
     if (!first_name || !last_name || !generated_id || !password) {
@@ -153,7 +160,11 @@ export const handleLogin: RequestHandler = async (req, res) => {
       .single();
 
     if (error || !data) {
-      console.error("Login error - user not found:", error);
+      console.error("❌ Login failed - user not found:", {
+        code: error?.code,
+        message: error?.message,
+        query: { first_name, last_name, generated_id },
+      });
       return res.status(401).json({
         error: "بيانات الدخول غير صحيحة - تأكد من الاسم ورقم العضو"
       });
@@ -161,10 +172,13 @@ export const handleLogin: RequestHandler = async (req, res) => {
 
     // Verify password
     if (password !== data.password) {
+      console.warn(`⚠️  Login attempt - incorrect password for user: ${data.generated_id}`);
       return res.status(401).json({
         error: "كلمة المرور غير صحيحة"
       });
     }
+
+    console.log(`✅ Login successful - User: ${data.generated_id}`);
 
     // Return user data on successful login
     res.json({

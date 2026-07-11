@@ -1,0 +1,286 @@
+================================================================================
+DATA NORMALIZATION FLOW DIAGRAM - Portail SHM Maroc
+================================================================================
+
+REGISTRATION FLOW WITH NORMALIZATION
+─────────────────────────────────────
+
+┌─────────────────────────────────┐
+│   USER ENTERS DATA IN FORM      │
+│                                 │
+│ First Name: "  Jean   Paul  "   │
+│ Phone: "06 66 94 71 66"         │
+│ Last Name: "  Dupont  "         │
+└────────────────┬────────────────┘
+                 │
+                 ▼
+        ┌────────────────────┐
+        │   FRONTEND         │
+        │  (Register.tsx)    │
+        │                    │
+        │ normalizeText()    │
+        │    + trimString()  │
+        │ normalizePhone()   │
+        └────────┬───────────┘
+                 │
+                 ▼
+┌─────────────────────────────────┐
+│  NORMALIZED DATA (Browser)      │
+│                                 │
+│ first_name: "Jean Paul"         │ ✅ Single space
+│ user_phone: "0666947166"        │ ✅ Standard format
+│ last_name: "Dupont"             │ ✅ No spaces
+└────────────────┬────────────────┘
+                 │
+                 ├──────────────────────────────┐
+                 │ POST /api/auth/register      │
+                 │ (JSON body)                  │
+                 │ [Network Request]            │
+                 └──────────┬───────────────────┘
+                            │
+                            ▼
+        ┌──────────────────────────────┐
+        │   BACKEND (auth.ts)          │
+        │                              │
+        │ Receive raw request body     │
+        │ normalizeText() again        │ (Defense in depth)
+        │ normalizePhoneNumber() again │
+        │                              │
+        │ Validate required fields     │
+        │ Validate phone format        │
+        └──────────────┬───────────────┘
+                       │
+                       ├─ If invalid: ├──► Return error (400/401/500)
+                       │
+                       ├─ If valid ──────┐
+                       │                  │
+                       ▼                  │
+        ┌──────────────────────────┐    │
+        │  INSERT to Supabase      │    │
+        │  (Real Credentials)      │    │
+        │                          │    │
+        │ users table:             │    │
+        │ - first_name: "Jean Paul"│    │
+        │ - user_phone: "0666947166"   │
+        │ - last_name: "Dupont"   │    │
+        └──────────────┬───────────┘    │
+                       │                │
+                       ▼                │
+        ┌──────────────────────────┐    │
+        │   DATABASE (Supabase)    │    │
+        │                          │    │
+        │ ✅ Data stored normalized     │
+        │ ✅ No spaces in names   │    │
+        │ ✅ Phone in standard fmt     │
+        └──────────────┬───────────┘    │
+                       │                │
+                       ▼                │
+        ┌──────────────────────────┐    │
+        │   RESPONSE to Frontend   │    │
+        │                          │    │
+        │ {                        │    │
+        │   "id": "...",           │    │
+        │   "generated_id": "..." │    │
+        │   "first_name": "Jean Paul"
+        │   "user_phone": "0666947166"│
+        │ }                        │    │
+        └──────────────┬───────────┘    │
+                       │                │
+                       └────────┬───────┘
+                                │
+                                ▼
+                    ┌──────────────────────┐
+                    │  FRONTEND RECEIVES   │
+                    │                      │
+                    │ Stores user in       │
+                    │ LocalStorage/Context │
+                    │                      │
+                    │ Redirects to next    │
+                    │ page on success      │
+                    └──────────────────────┘
+
+
+LOGIN FLOW WITH NORMALIZATION
+──────────────────────────────
+
+┌─────────────────────────────┐
+│   USER ENTERS LOGIN DATA    │
+│                             │
+│ First Name: "  John  "      │
+│ Generated ID: "SHM001  "    │
+│ Password: "MyPass"          │
+└─────────────┬───────────────┘
+              │
+              ▼
+      ┌─────────────────┐
+      │  FRONTEND       │
+      │  (Login.tsx)    │
+      │                 │
+      │ normalizeText() │ ← Only for names & ID
+      │ trimString()    │ ← Only for password (preserve spaces)
+      └────────┬────────┘
+               │
+               ▼
+┌──────────────────────────┐
+│ NORMALIZED DATA          │
+│                          │
+│ first_name: "John"       │ ✅ 
+│ generated_id: "SHM001"   │ ✅
+│ password: "MyPass"       │ ✅ (preserved as-is)
+└────────────┬─────────────┘
+             │
+             ├─────────────────────┐
+             │ POST /api/auth/login│
+             └────────┬────────────┘
+                      │
+                      ▼
+      ┌───────────────────────────┐
+      │ BACKEND (auth.ts)         │
+      │                           │
+      │ normalizeText() for names │ (Defense)
+      │                           │
+      │ Query Supabase:           │
+      │ WHERE first_name = "John" │
+      │ WHERE last_name = "Doe"   │
+      │ WHERE generated_id = ...  │
+      └────────┬──────────────────┘
+               │
+               ├─ User found? ─────────┐
+               │                       │
+               ▼ (Yes)                 ▼ (No)
+        ┌──────────────┐      Return 401: ❌
+        │ Verify       │      "User not found"
+        │ password     │
+        └─────┬────────┘
+              │
+              ├─ Password match? ──┐
+              │                    │
+              ▼ (Yes)              ▼ (No)
+        ┌──────────────┐    Return 401: ❌
+        │ Return user  │    "Wrong password"
+        │ data         │
+        └──────────────┘
+
+
+PHONE NORMALIZATION MATRIX
+──────────────────────────
+
+Input Format              | Processing                    | Output
+──────────────────────────────────────────────────────────────────────
+"06 66 94 71 66"         | Remove spaces                 | "0666947166"
+"06-66-94-71-66"         | Remove dashes                 | "0666947166"
+"+212 666 947 166"       | Remove +, convert 212→0       | "0666947166"
+"00212666947166"         | Remove 00, convert 212→0      | "0666947166"
+"212666947166"           | Convert leading 212→0         | "0666947166"
+"666947166"              | Add leading 0                 | "0666947166"
+"(212) 666-94-71-66"     | Remove (, ), -, convert       | "0266947166"
+" 06 66 94 71 66 "       | Trim, remove spaces           | "0666947166"
+
+Invalid: "0466947166"    → null ❌ (Invalid prefix 04)
+Invalid: "333666947166"  → null ❌ (Invalid prefix 33)
+Invalid: "+33666947166"  → null ❌ (French, not Moroccan)
+
+
+TEXT NORMALIZATION MATRIX
+─────────────────────────
+
+Input                     | Processing                    | Output
+─────────────────────────────────────────────────────────────────────
+"  John  "               | Trim                          | "John"
+"John   Doe"            | Reduce multiple spaces        | "John Doe"
+"  Jean   Paul   Smith " | Trim + reduce spaces         | "Jean Paul Smith"
+"محمد  علي"            | Trim + reduce spaces         | "محمد علي"
+"test\nline"            | Convert control char→space    | "test line"
+"test\ttab"             | Convert tab→space             | "test tab"
+"test\u00A0nbsp"       | Convert non-breaking space    | "test nbsp"
+"   "                   | All spaces → nothing          | ""
+"123456"                | Trim only (no spaces)         | "123456"
+
+
+ERROR FLOW WITH LOGGING
+───────────────────────
+
+Invalid Input
+    │
+    ├─► Frontend Validation
+    │   └─► Error message in UI
+    │
+    ├─► POST to backend
+    │   └─► Error logged: ❌ [timestamp] error details
+    │
+    └─► Response 400/401/500
+        └─► Error message to user in Arabic
+            └─► Browser console: error details
+
+
+SUCCESS FLOW WITH LOGGING
+──────────────────────────
+
+Valid Input
+    │
+    ├─► Frontend normalizes
+    │
+    ├─► POST to backend
+    │   └─► Request logged: [timestamp] POST /api/auth/register
+    │
+    ├─► Backend normalizes
+    │   └─► Validation passed
+    │
+    ├─► INSERT to Supabase
+    │   └─► Success logged: ✅ Registration successful - User: [id]
+    │
+    └─► Return user data
+        └─► Frontend: navigate to next page
+
+
+REQUEST LOGGING TIMELINE
+────────────────────────
+
+[2026-07-11T14:30:45.123Z] POST /api/auth/register
+[2026-07-11T14:30:45.234Z]   → Received: { first_name: "John", ... }
+[2026-07-11T14:30:45.345Z]   → Normalized: { first_name: "John", ... }
+[2026-07-11T14:30:45.456Z]   → Querying Supabase...
+[2026-07-11T14:30:45.678Z]   → Insert complete: user_id = "abc123"
+[2026-07-11T14:30:45.679Z] ✅ Registration successful - User: abc123
+[2026-07-11T14:30:45.680Z] POST /api/auth/login
+[2026-07-11T14:30:45.890Z]   → Received: { first_name: "John", ... }
+[2026-07-11T14:30:45.901Z]   → Normalized: { first_name: "John", ... }
+[2026-07-11T14:30:46.012Z]   → Query match found
+[2026-07-11T14:30:46.023Z]   → Password verified
+[2026-07-11T14:30:46.024Z] ✅ Login successful - User: SHM001
+
+
+DATA STORAGE GUARANTEE
+──────────────────────
+
+┌──────────────┐           ┌─────────────┐           ┌──────────────┐
+│   RAW USER   │           │  NORMALIZED │           │  DATABASE    │
+│   INPUT      │           │    DATA     │           │  STORAGE     │
+│              │           │             │           │              │
+│ "  Jean    "─┼─normalize─┤ "Jean"      ├─ insert ─┤ "Jean"       │
+│ "+212 66 94" ├─normalize─┤ "0666947166"├─ insert ─┤ "0666947166" │
+│ "  Smith   "─┼─normalize─┤ "Smith"     ├─ insert ─┤ "Smith"      │
+└──────────────┘           └─────────────┘           └──────────────┘
+ ↑                         ↑                         ↑
+ Frontend sends            Both Frontend            Database stores
+ user input with           AND Backend              only clean,
+ formatting issues         normalize               normalized data
+
+
+DEDUPLICATION CHECK (Future Enhancement)
+────────────────────────────────────────
+
+Before INSERT:
+  Input: user_phone = "+212 666 947 166"
+         normalize = "0666947166"
+         
+         SELECT id FROM users 
+         WHERE user_phone = "0666947166"
+         
+  Result:
+    - If found: Reject registration ("Number already registered")
+    - If not found: Proceed with INSERT
+
+Currently NOT implemented - would require database migration
+
+================================================================================

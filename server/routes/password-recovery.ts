@@ -1,15 +1,15 @@
 import { RequestHandler } from "express";
 import { supabase } from "../lib/supabase";
-import { trimString, normalizePhoneNumber } from "../../shared/utils";
+import { trimString, normalizePhoneNumber, normalizeText } from "../../shared/utils";
 
 export const handleVerifyIdentity: RequestHandler = async (req, res) => {
   try {
     // Clean input data
     let { firstName, lastName, userPhone, birthDate, memberId } = req.body;
 
-    firstName = trimString(firstName);
-    lastName = trimString(lastName);
-    memberId = trimString(memberId);
+    firstName = normalizeText(firstName);
+    lastName = normalizeText(lastName);
+    memberId = normalizeText(memberId);
 
     // Normalize phone number
     const normalizedPhone = normalizePhoneNumber(userPhone);
@@ -60,8 +60,8 @@ export const handleResetPassword: RequestHandler = async (req, res) => {
     // Clean input data
     let { memberId, newPassword } = req.body;
 
-    memberId = trimString(memberId);
-    newPassword = trimString(newPassword);
+    memberId = normalizeText(memberId);
+    newPassword = trimString(newPassword); // passwords: don't change internal spaces
 
     // Validate input
     if (!memberId || !newPassword) {
